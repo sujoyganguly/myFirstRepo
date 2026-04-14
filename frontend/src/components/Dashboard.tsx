@@ -3,7 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, Legend,
 } from 'recharts';
-import { AlertTriangle, CheckCircle, Clock, Flame, ShieldAlert, TrendingUp } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock, Flame, Home, Building2, ShieldAlert, TrendingUp } from 'lucide-react';
 import { analyticsApi } from '../utils/api';
 import type { AnalyticsSummary } from '../types';
 import { CHART_COLORS } from '../constants';
@@ -47,7 +47,9 @@ export default function Dashboard() {
 
   if (!data) return <p className="text-red-500 p-8">Failed to load analytics.</p>;
 
-  const { summary, byCriticality, byIssueType, byStatus, dailyTrend, avgResolutionHours, slaComplianceRate, problemAreas } = data;
+  const { summary, byCategory, byCriticality, byIssueType, byStatus, dailyTrend, avgResolutionHours, slaComplianceRate, problemAreas } = data;
+  const personalCount = byCategory.find(c => c.category === 'Personal')?.count ?? 0;
+  const commonCount   = byCategory.find(c => c.category === 'Common')?.count   ?? 0;
 
   return (
     <div className="space-y-6">
@@ -73,6 +75,30 @@ export default function Dashboard() {
         <StatCard label="Resolved"        value={summary.resolved}   icon={CheckCircle}  color="border-green-500" />
         <StatCard label="Critical Active" value={summary.critical}   icon={Flame}        color="border-red-600" sub="Needs immediate attention" />
         <StatCard label="SLA Breached"    value={summary.breached}   icon={AlertTriangle} color="border-rose-500" sub="Escalation required" />
+      </div>
+
+      {/* Personal vs Common split */}
+      <div className="grid grid-cols-2 gap-4">
+        <Link to="/tickets?category=Personal"
+          className="bg-white rounded-xl shadow-sm border-l-4 border-indigo-400 p-4 flex items-center gap-4 hover:bg-indigo-50/40 transition-colors">
+          <div className="p-2 rounded-lg bg-indigo-100">
+            <Home className="w-5 h-5 text-indigo-600" />
+          </div>
+          <div>
+            <p className="text-xl font-bold text-gray-900">{personalCount}</p>
+            <p className="text-sm text-gray-500">Personal / In-Unit Tickets</p>
+          </div>
+        </Link>
+        <Link to="/tickets?category=Common"
+          className="bg-white rounded-xl shadow-sm border-l-4 border-teal-500 p-4 flex items-center gap-4 hover:bg-teal-50/40 transition-colors">
+          <div className="p-2 rounded-lg bg-teal-100">
+            <Building2 className="w-5 h-5 text-teal-600" />
+          </div>
+          <div>
+            <p className="text-xl font-bold text-gray-900">{commonCount}</p>
+            <p className="text-sm text-gray-500">Common Area / Facility Tickets</p>
+          </div>
+        </Link>
       </div>
 
       {/* SLA Compliance + Avg Resolution */}

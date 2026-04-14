@@ -15,6 +15,11 @@ router.get('/summary', (req, res) => {
     "SELECT COUNT(*) as c FROM tickets WHERE status NOT IN ('Resolved','Closed') AND sla_resolution_due < ?"
   ).get(now).c;
 
+  // By category (Personal vs Common)
+  const byCategory = db.prepare(
+    "SELECT category, COUNT(*) as count FROM tickets GROUP BY category"
+  ).all();
+
   // By criticality
   const byCriticality = db.prepare(
     "SELECT criticality, COUNT(*) as count FROM tickets GROUP BY criticality"
@@ -71,6 +76,7 @@ router.get('/summary', (req, res) => {
 
   res.json({
     summary: { total, open, inProgress, resolved, critical, breached },
+    byCategory,
     byCriticality,
     byIssueType,
     byStatus,

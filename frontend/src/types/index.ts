@@ -1,6 +1,7 @@
-export type Criticality = 'Critical' | 'High' | 'Medium' | 'Low';
-export type Severity    = 'S1' | 'S2' | 'S3' | 'S4';
+export type Criticality  = 'Critical' | 'High' | 'Medium' | 'Low';
+export type Severity     = 'S1' | 'S2' | 'S3' | 'S4';
 export type TicketStatus = 'Open' | 'In Progress' | 'Resolved' | 'Closed';
+export type Category     = 'Personal' | 'Common';
 
 export interface Ticket {
   id: number;
@@ -9,7 +10,10 @@ export interface Ticket {
   reporter_name: string;
   apartment_number: string | null;
   contact_number: string | null;
-  issue_type: string;
+  // NEW: category + area
+  category: Category;
+  area: string | null;          // null for Personal tickets
+  issue_type: string;           // personal issue type OR common facility name
   sub_category: string | null;
   criticality: Criticality;
   severity: Severity;
@@ -51,10 +55,11 @@ export interface AnalyticsSummary {
     critical: number;
     breached: number;
   };
-  byCriticality: { criticality: string; count: number }[];
-  byIssueType:   { issue_type: string; count: number }[];
-  byStatus:      { status: string; count: number }[];
-  dailyTrend:    { date: string; count: number }[];
+  byCriticality:  { criticality: string; count: number }[];
+  byCategory:     { category: string; count: number }[];
+  byIssueType:    { issue_type: string; count: number }[];
+  byStatus:       { status: string; count: number }[];
+  dailyTrend:     { date: string; count: number }[];
   avgResolutionHours: number;
   slaComplianceRate:  number;
   problemAreas: { issue_type: string; open_count: number; high_priority_count: number }[];
@@ -75,6 +80,8 @@ export interface CreateTicketPayload {
   reporter_name: string;
   apartment_number: string;
   contact_number: string;
+  category: Category;
+  area: string;              // empty string for Personal
   issue_type: string;
   sub_category: string;
   criticality: Criticality;

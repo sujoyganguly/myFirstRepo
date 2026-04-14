@@ -1,13 +1,11 @@
 const express = require('express');
-const router = express.Router();
-const db = require('../db');
-const { v4: uuidv4 } = require('uuid');
+const router  = express.Router();
+const db      = require('../db');
 
-// SLA response/resolution hours per criticality
 const SLA = {
-  Critical: { response: 0.5, resolution: 4 },
-  High:     { response: 2,   resolution: 24 },
-  Medium:   { response: 8,   resolution: 72 },
+  Critical: { response: 0.5, resolution: 4   },
+  High:     { response: 2,   resolution: 24  },
+  Medium:   { response: 8,   resolution: 72  },
   Low:      { response: 24,  resolution: 168 },
 };
 
@@ -28,20 +26,22 @@ function generateTicketNumber() {
   return `SN-${year}-${String(seq).padStart(4, '0')}`;
 }
 
-// GET /api/tickets  — list with optional filters
+// GET /api/tickets
 router.get('/', (req, res) => {
-  const { status, criticality, issue_type, search, page = 1, limit = 20 } = req.query;
-  const offset = (page - 1) * limit;
+  const { status, criticality, issue_type, category, area, search, page = 1, limit = 20 } = req.query;
+  const offset = (Number(page) - 1) * Number(limit);
   const conditions = [];
   const params = [];
 
-  if (status)      { conditions.push("status = ?");      params.push(status); }
-  if (criticality) { conditions.push("criticality = ?"); params.push(criticality); }
-  if (issue_type)  { conditions.push("issue_type = ?");  params.push(issue_type); }
+  if (status)      { conditions.push('status = ?');      params.push(status); }
+  if (criticality) { conditions.push('criticality = ?'); params.push(criticality); }
+  if (category)    { conditions.push('category = ?');    params.push(category); }
+  if (area)        { conditions.push('area = ?');        params.push(area); }
+  if (issue_type)  { conditions.push('issue_type = ?');  params.push(issue_type); }
   if (search) {
-    conditions.push("(reporter_name LIKE ? OR description LIKE ? OR ticket_number LIKE ? OR apartment_number LIKE ?)");
+    conditions.push('(reporter_name LIKE ? OR description LIKE ? OR ticket_number LIKE ? OR apartment_number LIKE ? OR area LIKE ?)');
     const s = `%${search}%`;
-    params.push(s, s, s, s);
+    params.push(s, s, s, s, s);
   }
 
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -49,7 +49,6 @@ router.get('/', (req, res) => {
   const rows  = db.prepare(`SELECT * FROM tickets ${where} ORDER BY id DESC LIMIT ? OFFSET ?`)
                   .all(...params, Number(limit), Number(offset));
 
-  // Mark SLA breaches
   const now = new Date().toISOString();
   rows.forEach(r => {
     r.sla_breached = r.status !== 'Resolved' && r.status !== 'Closed' && r.sla_resolution_due < now;
@@ -74,15 +73,19 @@ router.get('/:id', (req, res) => {
   res.json({ ticket, updates });
 });
 
-// POST /api/tickets  — create
+// POST /api/tickets
 router.post('/', (req, res) => {
   const {
     reporter_name, apartment_number, contact_number,
+    category, area,
     issue_type, sub_category, criticality, severity, description,
   } = req.body;
 
-  if (!reporter_name || !issue_type || !criticality || !severity || !description) {
+  if (!reporter_name || !category || !issue_type || !criticality || !severity || !description) {
     return res.status(400).json({ error: 'Missing required fields' });
+  }
+  if (category === 'Common' && !area) {
+    return res.status(400).json({ error: 'Area is required for Common tickets' });
   }
 
   const sla = SLA[criticality] || SLA.Low;
@@ -92,12 +95,14 @@ router.post('/', (req, res) => {
   const info = db.prepare(`
     INSERT INTO tickets
       (ticket_number, date_reported, reporter_name, apartment_number, contact_number,
-       issue_type, sub_category, criticality, severity, description, status,
-       sla_response_due, sla_resolution_due)
-    VALUES (?,?,?,?,?,?,?,?,?,?,'Open',?,?)
+       category, area, issue_type, sub_category, criticality, severity, description,
+       status, sla_response_due, sla_resolution_due)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,'Open',?,?)
   `).run(
-    ticket_number, now, reporter_name, apartment_number || null, contact_number || null,
-    issue_type, sub_category || null, criticality, severity, description,
+    ticket_number, now, reporter_name,
+    apartment_number || null, contact_number || null,
+    category, area || null, issue_type, sub_category || null,
+    criticality, severity, description,
     addHours(now, sla.response), addHours(now, sla.resolution)
   );
 
@@ -105,7 +110,7 @@ router.post('/', (req, res) => {
   res.status(201).json(ticket);
 });
 
-// PUT /api/tickets/:id  — update (status change + notes)
+// PUT /api/tickets/:id
 router.put('/:id', (req, res) => {
   const { status, notes, updated_by, resolved_by, resolution_notes } = req.body;
   const ticket = db.prepare('SELECT * FROM tickets WHERE id = ?').get(req.params.id);
@@ -121,12 +126,10 @@ router.put('/:id', (req, res) => {
       resolution_notes = ?, updated_at = ?
     WHERE id = ?
   `).run(
-    status || ticket.status,
-    resolved_date,
+    status || ticket.status, resolved_date,
     resolved_by || ticket.resolved_by,
     resolution_notes || ticket.resolution_notes,
-    now,
-    ticket.id
+    now, ticket.id
   );
 
   if (notes) {
