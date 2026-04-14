@@ -141,7 +141,7 @@ export default function TicketDetail() {
         {/* Reporter row */}
         <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600 bg-gray-50 rounded-lg px-4 py-3">
           <span className="flex items-center gap-1.5"><User className="w-4 h-4 text-gray-400" />{ticket.reporter_name}</span>
-          {ticket.apartment_number && <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-gray-400" />{ticket.apartment_number}</span>}
+          {ticket.house_number && <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-gray-400" />{ticket.house_number}</span>}
           {ticket.contact_number   && <span className="flex items-center gap-1.5"><Phone className="w-4 h-4 text-gray-400" />{ticket.contact_number}</span>}
         </div>
 

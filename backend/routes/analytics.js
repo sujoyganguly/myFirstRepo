@@ -106,7 +106,7 @@ router.get('/sla', (req, res) => {
   `).all(now);
 
   const breachedTickets = db.prepare(`
-    SELECT id, ticket_number, reporter_name, apartment_number, issue_type,
+    SELECT id, ticket_number, reporter_name, house_number, issue_type,
            criticality, severity, description, date_reported, sla_resolution_due, status
     FROM tickets
     WHERE status NOT IN ('Resolved','Closed') AND sla_resolution_due < ?

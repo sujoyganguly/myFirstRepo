@@ -134,7 +134,7 @@ export default function SLAMonitor() {
               <thead>
                 <tr className="text-xs text-gray-500 uppercase tracking-wider bg-red-50">
                   <th className="px-4 py-2 text-left">Ticket #</th>
-                  <th className="px-4 py-2 text-left">Reporter / Flat</th>
+                  <th className="px-4 py-2 text-left">Reporter / House</th>
                   <th className="px-4 py-2 text-left">Issue</th>
                   <th className="px-4 py-2 text-left">Priority</th>
                   <th className="px-4 py-2 text-left">Status</th>
@@ -152,7 +152,7 @@ export default function SLAMonitor() {
                     </td>
                     <td className="px-4 py-3">
                       <p className="font-medium">{t.reporter_name}</p>
-                      {t.apartment_number && <p className="text-xs text-gray-400">{t.apartment_number}</p>}
+                      {t.house_number && <p className="text-xs text-gray-400">{t.house_number}</p>}
                     </td>
                     <td className="px-4 py-3 text-gray-700">{t.issue_type}</td>
                     <td className="px-4 py-3"><Badge type="criticality" value={t.criticality} breached /></td>

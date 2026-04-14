@@ -8,7 +8,7 @@ export interface Ticket {
   ticket_number: string;
   date_reported: string;
   reporter_name: string;
-  apartment_number: string | null;
+  house_number: string | null;
   contact_number: string | null;
   // NEW: category + area
   category: Category;
@@ -78,7 +78,7 @@ export interface SLAReport {
 
 export interface CreateTicketPayload {
   reporter_name: string;
-  apartment_number: string;
+  house_number: string;
   contact_number: string;
   category: Category;
   area: string;              // empty string for Personal

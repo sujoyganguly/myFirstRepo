@@ -69,7 +69,7 @@ export default function TicketList() {
         <div className="flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input type="text" placeholder="Search by name, ticket #, flat, description…"
+            <input type="text" placeholder="Search by name, ticket #, house no., description…"
               value={search} onChange={e => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
           </div>
@@ -140,7 +140,7 @@ export default function TicketList() {
               <thead>
                 <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
                   <th className="px-4 py-3 text-left">Ticket #</th>
-                  <th className="px-4 py-3 text-left">Reporter / Flat</th>
+                  <th className="px-4 py-3 text-left">Reporter / House</th>
                   <th className="px-4 py-3 text-left">Category</th>
                   <th className="px-4 py-3 text-left">Area / Issue</th>
                   <th className="px-4 py-3 text-left">Priority</th>
@@ -167,8 +167,8 @@ export default function TicketList() {
 
                       <td className="px-4 py-3">
                         <p className="font-medium text-gray-800">{t.reporter_name}</p>
-                        {t.apartment_number && (
-                          <p className="text-gray-400 text-xs">{t.apartment_number}</p>
+                        {t.house_number && (
+                          <p className="text-gray-400 text-xs">{t.house_number}</p>
                         )}
                       </td>
 

@@ -11,7 +11,7 @@ export const CATEGORY_OPTIONS = [
   {
     value: 'Personal',
     label: 'Personal',
-    description: 'Issue inside your apartment / unit',
+    description: 'Issue inside your house / unit',
     icon: '🏠',
     color: 'border-indigo-500 bg-indigo-50',
   },
@@ -29,7 +29,7 @@ export const CATEGORY_OPTIONS = [
 export const PERSONAL_ISSUE_TYPES: Record<string, IssueFacility> = {
   'Electricity & Power': {
     subCategories: [
-      'Complete power outage in flat',
+      'Complete power outage in house',
       'Frequent MCB / breaker tripping',
       'Faulty wiring / sparks',
       'Electrical socket not working',
@@ -49,7 +49,7 @@ export const PERSONAL_ISSUE_TYPES: Record<string, IssueFacility> = {
   'Plumbing & Drainage': {
     subCategories: [
       'Blocked bathroom / kitchen drain',
-      'Pipe burst / leakage inside flat',
+      'Pipe burst / leakage inside house',
       'Toilet flush not working',
       'Sink / basin overflow',
       'Foul smell from drain',
@@ -58,7 +58,7 @@ export const PERSONAL_ISSUE_TYPES: Record<string, IssueFacility> = {
   },
   'Gas Supply': {
     subCategories: [
-      'Gas leakage smell inside flat',
+      'Gas leakage smell inside house',
       'Piped gas supply interrupted',
       'Gas meter malfunction',
       'Gas regulator issue',
@@ -77,7 +77,7 @@ export const PERSONAL_ISSUE_TYPES: Record<string, IssueFacility> = {
   'Air Conditioning': {
     subCategories: [
       'AC not cooling',
-      'AC leaking water inside flat',
+      'AC leaking water inside house',
       'AC unit making noise',
       'AC remote / thermostat issue',
       'AC outdoor unit damage',
@@ -90,17 +90,17 @@ export const PERSONAL_ISSUE_TYPES: Record<string, IssueFacility> = {
       'Cracks in wall or floor',
       'Door / window not closing properly',
       'Flooring tile loose / broken',
-      'Paint peeling inside flat',
+      'Paint peeling inside house',
     ],
     defaultCriticality: 'Medium',
   },
   'Pest Control': {
     subCategories: [
-      'Cockroaches inside flat',
+      'Cockroaches inside house',
       'Ants or insects',
-      'Rodents / rats inside flat',
+      'Rodents / rats inside house',
       'Termites / white ants',
-      'Mosquito breeding inside flat',
+      'Mosquito breeding inside house',
     ],
     defaultCriticality: 'Medium',
   },

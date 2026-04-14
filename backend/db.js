@@ -14,7 +14,7 @@ db.exec(`
     ticket_number    TEXT UNIQUE NOT NULL,
     date_reported    TEXT NOT NULL,
     reporter_name    TEXT NOT NULL,
-    apartment_number TEXT,
+    house_number     TEXT,
     contact_number   TEXT,
     category         TEXT NOT NULL DEFAULT 'Personal',
     area             TEXT,
@@ -51,7 +51,7 @@ db.exec(`
   );
 `);
 
-// Migrate existing DB: add category + area if not present (SQLite doesn't support IF NOT EXISTS on ALTER)
+// Migrate existing DB columns (SQLite doesn't support IF NOT EXISTS on ALTER)
 const existingCols = db.prepare("PRAGMA table_info(tickets)").all().map(c => c.name);
 if (!existingCols.includes('category')) {
   db.exec("ALTER TABLE tickets ADD COLUMN category TEXT NOT NULL DEFAULT 'Personal'");
@@ -59,13 +59,17 @@ if (!existingCols.includes('category')) {
 if (!existingCols.includes('area')) {
   db.exec("ALTER TABLE tickets ADD COLUMN area TEXT");
 }
+// Rename apartment_number → house_number (SQLite >= 3.25 supports RENAME COLUMN)
+if (existingCols.includes('apartment_number') && !existingCols.includes('house_number')) {
+  db.exec("ALTER TABLE tickets RENAME COLUMN apartment_number TO house_number");
+}
 
 // Seed demo tickets only on a fresh DB
 const count = db.prepare('SELECT COUNT(*) as c FROM tickets').get();
 if (count.c === 0) {
   const insert = db.prepare(`
     INSERT INTO tickets
-      (ticket_number, date_reported, reporter_name, apartment_number, contact_number,
+      (ticket_number, date_reported, reporter_name, house_number, contact_number,
        category, area, issue_type, sub_category, criticality, severity, description,
        status, sla_response_due, sla_resolution_due, resolved_date, resolved_by, resolution_notes)
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
@@ -74,7 +78,7 @@ if (count.c === 0) {
   const now = new Date();
   const ago = (n) => new Date(now - n * 86400000).toISOString();
 
-  // [ticket_number, date, name, flat, phone, category, area, issue_type, sub_cat, crit, sev, desc, status, resp_due, res_due, resolved_date, resolved_by, res_notes]
+  // [ticket_number, date, name, house_no, phone, category, area, issue_type, sub_cat, crit, sev, desc, status, resp_due, res_due, resolved_date, resolved_by, res_notes]
   const demos = [
     // ── Personal tickets ──────────────────────────────────────────────────────
     ['SN-2024-0001', ago(10), 'Amit Sharma',     'B-204', '9876543210',
@@ -90,7 +94,7 @@ if (count.c === 0) {
      'Terrace waterproofing done. Seepage stopped.'],
 
     ['SN-2024-0003', ago(0.2), 'Sanjay Kumar',   'D-102', '9210987654',
-     'Personal', null, 'Gas Supply', 'Gas leakage smell inside flat', 'Critical', 'S1',
+     'Personal', null, 'Gas Supply', 'Gas leakage smell inside house', 'Critical', 'S1',
      'Strong smell of gas in kitchen. Family evacuated to corridor. Immediate action needed.',
      'In Progress', ago(0.2), ago(0.03), null, null, null],
 

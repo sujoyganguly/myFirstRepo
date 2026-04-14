@@ -39,7 +39,7 @@ router.get('/', (req, res) => {
   if (area)        { conditions.push('area = ?');        params.push(area); }
   if (issue_type)  { conditions.push('issue_type = ?');  params.push(issue_type); }
   if (search) {
-    conditions.push('(reporter_name LIKE ? OR description LIKE ? OR ticket_number LIKE ? OR apartment_number LIKE ? OR area LIKE ?)');
+    conditions.push('(reporter_name LIKE ? OR description LIKE ? OR ticket_number LIKE ? OR house_number LIKE ? OR area LIKE ?)');
     const s = `%${search}%`;
     params.push(s, s, s, s, s);
   }
@@ -76,7 +76,7 @@ router.get('/:id', (req, res) => {
 // POST /api/tickets
 router.post('/', (req, res) => {
   const {
-    reporter_name, apartment_number, contact_number,
+    reporter_name, house_number, contact_number,
     category, area,
     issue_type, sub_category, criticality, severity, description,
   } = req.body;
@@ -94,13 +94,13 @@ router.post('/', (req, res) => {
 
   const info = db.prepare(`
     INSERT INTO tickets
-      (ticket_number, date_reported, reporter_name, apartment_number, contact_number,
+      (ticket_number, date_reported, reporter_name, house_number, contact_number,
        category, area, issue_type, sub_category, criticality, severity, description,
        status, sla_response_due, sla_resolution_due)
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,'Open',?,?)
   `).run(
     ticket_number, now, reporter_name,
-    apartment_number || null, contact_number || null,
+    house_number || null, contact_number || null,
     category, area || null, issue_type, sub_category || null,
     criticality, severity, description,
     addHours(now, sla.response), addHours(now, sla.resolution)
